@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Editor</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/wjrmSP08/icons8-editor-32.png">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #111;
+            color: #ffffff;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            text-align: center;
+            background: #ffffff;
+            color: #000000;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgb(0, 0, 0);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        textarea, input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #333;
+            color: #ffffff;
+            border: 1px solid #555;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .button-group button {
+            flex: 1 1 calc(50% - 10px);
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .button-group button:hover {
+            background-color: #0056b3;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #444;
+            color: #ffffff;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            transition: background-color 0.3s, color 0.3s;
+            height: 200px;
+            width: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+
+        #output:empty::before {
+            content: attr(placeholder);
+            color: #888;
+        }
+
+        .extra-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .extra-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+        }
+
+
+
+        
+
+        .extra-buttons-separator button
+        {
+
+            width: 100%;
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .extra-buttons-separator button:hover 
+        {
+            background-color: #0056b3;
+        }
+
+
+
+
+
+
+
+
+
+        .extra-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .dark-mode {
+            background-color: #111;
+            color: #ffffff;
+        }
+
+        .dark-mode .container {
+            background-color: #222;
+            color: #ffffff;
+        }
+
+        .dark-mode textarea, .dark-mode input {
+            background-color: #333;
+            color: #ffffff;
+            border: 1px solid #555;
+        }
+
+        .dark-mode .button-group button, .dark-mode .extra-buttons button {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .dark-mode .button-group button:hover, .dark-mode .extra-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .dark-mode #output {
+            background-color: #444;
+            color: #ffffff;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .separator-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            color: white;
+            background-color: #1a1a1a;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
+    <div class="separator-toggle" onclick="openSeparator()">📋</div>
+    <div class="container">
+        <h1>Text Editor</h1>
+        <textarea id="wordList" placeholder="Enter words, each on a new line..."></textarea>
+        <br>
+        <input type="text" id="customWord" placeholder="Enter custom word...">
+        <br>
+        <div class="button-group">
+            <button onclick="addWordToEnd()">Add Word to End</button>
+            <button onclick="addWordToStart()">Add Word to Start</button>
+            <button onclick="removeSpaces()">Remove Spaces</button>
+            <button onclick="countWordsAndLines()">Count Words and Lines</button>
+            <button onclick="removeItemsContainingWord()">Remove Items Containing Word</button>
+            <button onclick="removeDuplicates()">Remove Duplicates</button>
+            <button onclick="exportTextToFile()">Export Text to File</button>
+        </div>
+        <div id="output" placeholder="Output will be displayed here..."></div>
+        <div class="extra-buttons">
+            <button onclick="copyOutput()">Copy Output</button>
+            <button onclick="clearOutput()">Clear Output</button>
+            <button onclick="clearInput()">Clear Input</button>
+            <button onclick="toUpperCase()">All Caps</button>
+            <button onclick="toLowerCase()">All Small</button>
+            <button onclick="capitalizeFirst()">Capitalize First</button>
+            <button onclick="sortOutput()">Sort Output</button>
+        </div>
+
+        <h4>
+            Developed by TGW_Arad
+        </h4>
+    </div>
+
+    <div id="separatorModal" class="modal extra-buttons-separator" style="display: none;">
+        <div class="modal-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <span class="close" onclick="closeSeparator()" style="align-self: flex-end; cursor: pointer;">&times;</span>
+            <h2>List Separator</h2>
+            <textarea id="inputList" placeholder="Enter your long list, each item on a new line" style="margin: 10px 0;"></textarea>
+            <input type="number" id="linesPerFile" placeholder="Enter number of lines per file" style="margin: 10px 0;">
+            <button onclick="separateList()" style="margin: 10px 0;">Separate and Download Files</button>
+            <div id="outputLists"></div>
+        </div>
+    </div>
+    
+    
+    
+
+    <script>
+        function removeDuplicates() {
+            let wordList = document.getElementById("wordList").value.split("\n");
+            let uniqueWords = [...new Set(wordList.map(word => word.trim()).filter(word => word !== ""))];
+            document.getElementById("output").innerText = uniqueWords.join("\n");
+        }
+
+        function addWordToEnd() {
+            let wordList = document.getElementById("wordList").value.split("\n");
+            let customWord = document.getElementById("customWord").value.trim();
+            let modifiedWords = wordList.map(word => word.trim() ? word.trim() + customWord : "").filter(word => word !== "");
+            document.getElementById("output").innerText = modifiedWords.join("\n");
+        }
+
+        function addWordToStart() {
+            let wordList = document.getElementById("wordList").value.split("\n");
+            let customWord = document.getElementById("customWord").value.trim();
+            let modifiedWords = wordList.map(word => word.trim() ? customWord + word.trim() : "").filter(word => word !== "");
+            document.getElementById("output").innerText = modifiedWords.join("\n");
+        }
+
+        function removeSpaces() {
+            let wordList = document.getElementById("wordList").value;
+            let modifiedWords = wordList.replace(/ /g, ''); // Replace only spaces
+            document.getElementById("output").innerText = modifiedWords;
+        }
+
+        function countWordsAndLines() {
+            let wordList = document.getElementById("wordList").value;
+            let lines = wordList.split("\n").filter(line => line.trim() !== "").length;
+            let words = wordList.split(/\s+/).filter(word => word.trim() !== "").length;
+            document.getElementById("output").innerText = `Words: ${words}, Lines: ${lines}`;
+        }
+
+        function removeItemsContainingWord() {
+            let wordList = document.getElementById("wordList").value.split("\n");
+            let customWord = document.getElementById("customWord").value.trim();
+            let modifiedWords = wordList.filter(word => !word.includes(customWord));
+            document.getElementById("output").innerText = modifiedWords.join("\n");
+        }
+
+        function exportTextToFile() {
+            let outputText = document.getElementById("output").innerText;
+            let blob = new Blob([outputText], { type: 'text/plain' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'output.txt';
+            link.click();
+        }
+
+        function copyOutput() {
+            let outputText = document.getElementById("output").innerText;
+            navigator.clipboard.writeText(outputText).then(function() {
+                alert('Output copied to clipboard!');
+            }, function(err) {
+                alert('Could not copy text: ', err);
+            });
+        }
+
+        function clearOutput() {
+            document.getElementById("output").innerText = '';
+        }
+
+        function clearInput() {
+            document.getElementById("wordList").value = '';
+            document.getElementById("customWord").value = '';
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggle.textContent = '🌙';
+                document.body.style.backgroundColor = "#111";
+                document.body.style.color = "#ffffff";
+            } else {
+                themeToggle.textContent = '☀️';
+                document.body.style.backgroundColor = "#f0f0f0";
+                document.body.style.color = "#000000";
+            }
+        }
+
+        function toUpperCase() {
+            let wordList = document.getElementById("wordList").value.toUpperCase();
+            document.getElementById("output").innerText = wordList;
+        }
+
+        function toLowerCase() {
+            let wordList = document.getElementById("wordList").value.toLowerCase();
+            document.getElementById("output").innerText = wordList;
+        }
+
+        function capitalizeFirst() {
+            let wordList = document.getElementById("wordList").value;
+            let modifiedWords = wordList.split("\n").map(line => {
+                let trimmedLine = line.trim();
+                return trimmedLine ? trimmedLine[0].toUpperCase() + trimmedLine.slice(1).toLowerCase() : "";
+            }).join("\n");
+            document.getElementById("output").innerText = modifiedWords;
+        }
+
+        function sortOutput() {
+            let outputText = document.getElementById("output").innerText;
+            let sortedText = outputText.split("\n").filter(line => line.trim() !== "").sort().join("\n");
+            document.getElementById("output").innerText = sortedText;
+        }
+
+        function openSeparator() {
+            document.getElementById("separatorModal").style.display = "block";
+        }
+
+        function closeSeparator() {
+            document.getElementById("separatorModal").style.display = "none";
+        }
+
+        function separateList() {
+            const inputList = document.getElementById('inputList').value.split("\n").map(item => item.trim()).filter(item => item);
+            const linesPerFile = parseInt(document.getElementById('linesPerFile').value);
+            const chunkSize = linesPerFile;
+
+            for (let i = 0; i < inputList.length; i += chunkSize) {
+                const chunk = inputList.slice(i, i + chunkSize);
+                const blob = new Blob([chunk.join('\n')], { type: 'text/plain' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `output_part_${Math.floor(i / chunkSize) + 1}.txt`;
+                link.click();
+            }
+        }
+    </script>
+
+
+</body>
+</html>
