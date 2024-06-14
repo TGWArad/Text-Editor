@@ -6,9 +6,4 @@ A versatile text editor for lists. Ideal for managing passwords or large dataset
   2) you can add it to your desktop or any location you want
   3) open file and enjoy 😉
 
-
-# Test version:
-  https://666af3e0048ee02e3fe87e72--cosmic-chaja-4e5502.netlify.app/
-
-
 # Discord: https://discord.gg/KqNGRuMYVB
